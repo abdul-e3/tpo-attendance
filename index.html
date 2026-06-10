@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPO — Attendance Registration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .logo-area img {
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 6px;
+  }
+
+  .logo-area .tagline {
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 0.5px;
+    direction: ltr;
+  }
+
+  .section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff8ee;
+    border: 1px solid #e8c96a;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #7a5c00;
+    font-weight: 500;
+    margin-bottom: 22px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-badge .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #c8972a;
+    flex-shrink: 0;
+  }
+
+  .field-wrap { margin-bottom: 18px; }
+
+  .field-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+
+  .field-label .ar { font-size: 14px; color: #333; font-weight: 500; }
+  .field-label .en { font-size: 12px; color: #999; direction: ltr; }
+
+  input[type=text] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #222;
+    outline: none;
+    transition: border-color 0.2s;
+    direction: ltr;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  input[type=text]:focus { border-color: #c8972a; }
+  input[type=text].err { border-color: #e53935; }
+
+  .err-msg {
+    font-size: 12px;
+    color: #e53935;
+    margin-top: 6px;
+    display: none;
+    text-align: center;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #c8972a 0%, #a67520 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-submit:hover { opacity: 0.92; }
+
+  .btn-back {
+    width: 100%;
+    padding: 11px;
+    background: #fff;
+    color: #555;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.15s;
+  }
+
+  .btn-back:hover { background: #f9f9f9; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .loader {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 0 12px;
+  }
+
+  .loader span {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #c8972a;
+    animation: bounce 0.9s infinite ease-in-out;
+  }
+
+  .loader span:nth-child(2) { animation-delay: 0.15s; }
+  .loader span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+  }
+
+  .loader-text {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  .status-icon {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 26px;
+  }
+
+  .status-icon.success { background: #edf7ed; }
+  .status-icon.warn    { background: #fff8e1; }
+  .status-icon.danger  { background: #fdecea; }
+
+  .status-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    color: #222;
+    margin-bottom: 4px;
+  }
+
+  .status-sub {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 22px;
+    line-height: 1.7;
+    direction: ltr;
+  }
+
+  .info-box {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 6px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+  .info-row .lbl { color: #888; }
+  .info-row .val { color: #222; font-weight: 500; direction: ltr; }
+
+  .divider {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    margin: 18px 0 0;
+    letter-spacing: 0.5px;
+  }
+
+  .tpo-accent {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .tpo-accent span {
+    height: 3px;
+    border-radius: 2px;
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="logo-area">
+    <img src="tpo1.jpeg" alt="TPO Logo" onerror="this.style.display='none';document.getElementById('tpo-text').style.display='block'">
+    <div id="tpo-text" style="display:none;font-size:28px;font-weight:700;color:#c8972a;letter-spacing:2px">TPO</div>
+    <div class="tagline">TAKATUF PETROFAC OMAN</div>
+  </div>
+
+  <!-- FORM SCREEN -->
+  <div id="s-form" class="screen active">
+
+    <div class="section-badge">
+      <div class="dot"></div>
+      <span id="section-label">Loading section...</span>
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-label">
+        <span class="ar">رقم الطالب</span>
+        <span class="en">Student ID</span>
+      </div>
+      <input type="text" id="sid" placeholder="أدخل رقمك / Enter your ID" oninput="clearErr()">
+      <div class="err-msg" id="err-msg"></div>
+    </div>
+
+    <button class="btn-submit" onclick="doSubmit()">تسجيل الحضور &nbsp;·&nbsp; Register</button>
+
+    <div class="tpo-accent">
+      <span style="background:#c8972a"></span>
+      <span style="background:#d4a843"></span>
+      <span style="background:#c03a2b"></span>
+      <span style="background:#e05040"></span>
+    </div>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="s-loading" class="screen">
+    <div class="loader">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="loader-text">جاري التحقق... &nbsp; Verifying</div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div id="s-success" class="screen">
+    <div class="status-icon success">✅</div>
+    <div class="status-title">تم تسجيل الحضور</div>
+    <div class="status-sub">Attendance registered successfully</div>
+    <div class="info-box">
+      <div class="info-row"><span class="lbl">الاسم / Name</span><span class="val" id="r-name">—</span></div>
+      <div class="info-row"><span class="lbl">الرقم / ID</span><span class="val" id="r-id">—</span></div>
+      <div class="info-row"><span class="lbl">الشعبة / Section</span><span class="val" id="r-sec">—</span></div>
+      <div class="info-row"><span class="lbl">التاريخ / Date</span><span class="val" id="r-date">—</span></div>
+      <div class="info-row"><span class="lbl">الوقت / Time</span><span class="val" id="r-time">—</span></div>
+    </div>
+    <div class="divider">TAKATUF PETROFAC OMAN</div>
+  </div>
+
+  <!-- DUPLICATE SCREEN -->
+  <div id="s-duplicate" class="screen">
+    <div class="status-icon warn">⚠️</div>
+    <div class="status-title">الحضور مسجّل مسبقاً</div>
+    <div class="status-sub">This device has already been used<br>to register attendance today.</div>
+    <div class="divider">TAKATUF PETROFAC OMAN</div>
+  </div>
+
+  <!-- NOT FOUND SCREEN -->
+  <div id="s-notfound" class="screen">
+    <div class="status-icon danger">❌</div>
+    <div class="status-title">الرقم غير موجود</div>
+    <div class="status-sub">Student ID not found.<br>يرجى التحقق من رقمك والمحاولة مجدداً.</div>
+    <button class="btn-submit" onclick="goBack()">حاول مجدداً &nbsp;·&nbsp; Try again</button>
+  </div>
+
+  <!-- ERROR SCREEN -->
+  <div id="s-error" class="screen">
+    <div class="status-icon danger">🔌</div>
+    <div class="status-title">خطأ في الاتصال</div>
+    <div class="status-sub">Connection error. Please try again.<br>تعذّر الاتصال بالخادم.</div>
+    <button class="btn-submit" onclick="goBack()">حاول مجدداً &nbsp;·&nbsp; Try again</button>
+  </div>
+
+</div>
+
+<script>
+const WEBHOOK_URL = 'https://mazoon1.abdulonline.online/webhook/attendance';
+
+function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name) || 'Unknown Section';
+}
+
+const section = getParam('section');
+document.getElementById('section-label').textContent = section;
+
+function getDeviceID() {
+  const ua = navigator.userAgent;
+  const lang = navigator.language;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const raw = ua + lang + tz;
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+    hash |= 0;
+  }
+  return 'DEV-' + Math.abs(hash).toString(36).toUpperCase();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function clearErr() {
+  document.getElementById('err-msg').style.display = 'none';
+  document.getElementById('sid').classList.remove('err');
+}
+
+function goBack() {
+  document.getElementById('sid').value = '';
+  clearErr();
+  show('s-form');
+}
+
+async function doSubmit() {
+  const sid = document.getElementById('sid').value.trim();
+  if (!sid) {
+    document.getElementById('err-msg').textContent = 'أدخل رقم الطالب / Enter your Student ID';
+    document.getElementById('err-msg').style.display = 'block';
+    document.getElementById('sid').classList.add('err');
+    return;
+  }
+
+  show('s-loading');
+
+  const deviceID = getDeviceID();
+  const now = new Date();
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentID: sid, deviceID, section })
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      document.getElementById('r-name').textContent = data.studentName || sid;
+      document.getElementById('r-id').textContent = sid;
+      document.getElementById('r-sec').textContent = section;
+      document.getElementById('r-date').textContent = now.toLocaleDateString('en-GB');
+      document.getElementById('r-time').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      show('s-success');
+    } else if (data.status === 'already_registered') {
+      show('s-duplicate');
+    } else if (data.status === 'not_found') {
+      show('s-notfound');
+    } else {
+      show('s-error');
+    }
+  } catch (e) {
+    show('s-error');
+  }
+}
+</script>
+
+</body>
+</html>
