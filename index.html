@@ -39,35 +39,19 @@
     margin-bottom: 6px;
   }
 
+  #tpo-text {
+    display: none;
+    font-size: 28px;
+    font-weight: 700;
+    color: #c8972a;
+    letter-spacing: 2px;
+  }
+
   .logo-area .tagline {
     font-size: 12px;
     color: #888;
     letter-spacing: 0.5px;
     direction: ltr;
-  }
-
-  .section-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #fff8ee;
-    border: 1px solid #e8c96a;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 13px;
-    color: #7a5c00;
-    font-weight: 500;
-    margin-bottom: 22px;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .section-badge .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #c8972a;
-    flex-shrink: 0;
   }
 
   .field-wrap { margin-bottom: 18px; }
@@ -82,7 +66,7 @@
   .field-label .ar { font-size: 14px; color: #333; font-weight: 500; }
   .field-label .en { font-size: 12px; color: #999; direction: ltr; }
 
-  input[type=text] {
+  select, input[type=text] {
     width: 100%;
     padding: 11px 14px;
     border: 1.5px solid #e0e0e0;
@@ -91,13 +75,30 @@
     color: #222;
     outline: none;
     transition: border-color 0.2s;
+    background: #fff;
+  }
+
+  select {
+    direction: ltr;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 20px;
+  }
+
+  input[type=text] {
     direction: ltr;
     text-align: center;
     letter-spacing: 1px;
   }
 
-  input[type=text]:focus { border-color: #c8972a; }
-  input[type=text].err { border-color: #e53935; }
+  select:focus, input[type=text]:focus { border-color: #c8972a; }
+  input[type=text].err, select.err { border-color: #e53935; }
 
   .err-msg {
     font-size: 12px;
@@ -123,21 +124,6 @@
   }
 
   .btn-submit:hover { opacity: 0.92; }
-
-  .btn-back {
-    width: 100%;
-    padding: 11px;
-    background: #fff;
-    color: #555;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.15s;
-  }
-
-  .btn-back:hover { background: #f9f9f9; }
 
   .screen { display: none; }
   .screen.active { display: block; }
@@ -250,16 +236,23 @@
 
   <div class="logo-area">
     <img src="tpo1.jpeg" alt="TPO Logo" onerror="this.style.display='none';document.getElementById('tpo-text').style.display='block'">
-    <div id="tpo-text" style="display:none;font-size:28px;font-weight:700;color:#c8972a;letter-spacing:2px">TPO</div>
+    <div id="tpo-text">TPO</div>
     <div class="tagline">TAKATUF PETROFAC OMAN</div>
   </div>
 
   <!-- FORM SCREEN -->
   <div id="s-form" class="screen active">
 
-    <div class="section-badge">
-      <div class="dot"></div>
-      <span id="section-label">Loading section...</span>
+    <div class="field-wrap">
+      <div class="field-label">
+        <span class="ar">اختر الشعبة</span>
+        <span class="en">Section</span>
+      </div>
+      <select id="section">
+        <option value="SEC-01">SEC-01</option>
+        <option value="SEC-02">SEC-02</option>
+        <option value="SEC-03">SEC-03</option>
+      </select>
     </div>
 
     <div class="field-wrap">
@@ -308,7 +301,15 @@
   <div id="s-duplicate" class="screen">
     <div class="status-icon warn">⚠️</div>
     <div class="status-title">الحضور مسجّل مسبقاً</div>
-    <div class="status-sub">This device has already been used<br>to register attendance today.</div>
+    <div class="status-sub">You have already registered attendance today<br>لقد سجّلت حضورك اليوم مسبقاً.</div>
+    <div class="divider">TAKATUF PETROFAC OMAN</div>
+  </div>
+
+  <!-- DEVICE USED SCREEN -->
+  <div id="s-device-used" class="screen">
+    <div class="status-icon warn">📵</div>
+    <div class="status-title">الجهاز مستخدم مسبقاً</div>
+    <div class="status-sub">This device was already used today<br>for this section.<br>هذا الجهاز استُخدم اليوم لتسجيل طالب آخر في نفس الشعبة.</div>
     <div class="divider">TAKATUF PETROFAC OMAN</div>
   </div>
 
@@ -316,7 +317,7 @@
   <div id="s-notfound" class="screen">
     <div class="status-icon danger">❌</div>
     <div class="status-title">الرقم غير موجود</div>
-    <div class="status-sub">Student ID not found.<br>يرجى التحقق من رقمك والمحاولة مجدداً.</div>
+    <div class="status-sub">Student ID not found in this section.<br>يرجى التحقق من رقمك والشعبة الصحيحة.</div>
     <button class="btn-submit" onclick="goBack()">حاول مجدداً &nbsp;·&nbsp; Try again</button>
   </div>
 
@@ -332,13 +333,6 @@
 
 <script>
 const WEBHOOK_URL = 'https://mazoon1.abdulonline.online/webhook/tpo-attendance-v2';
-
-function getParam(name) {
-  return new URLSearchParams(window.location.search).get(name) || 'Unknown Section';
-}
-
-const section = getParam('section');
-document.getElementById('section-label').textContent = section;
 
 function getDeviceID() {
   const ua = navigator.userAgent;
@@ -371,6 +365,8 @@ function goBack() {
 
 async function doSubmit() {
   const sid = document.getElementById('sid').value.trim();
+  const section = document.getElementById('section').value;
+
   if (!sid) {
     document.getElementById('err-msg').textContent = 'أدخل رقم الطالب / Enter your Student ID';
     document.getElementById('err-msg').style.display = 'block';
@@ -401,6 +397,8 @@ async function doSubmit() {
       show('s-success');
     } else if (data.status === 'already_registered') {
       show('s-duplicate');
+    } else if (data.status === 'device_used') {
+      show('s-device-used');
     } else if (data.status === 'not_found') {
       show('s-notfound');
     } else {
